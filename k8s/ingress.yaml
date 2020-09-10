@@ -1,0 +1,23 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  labels:
+    stage: dev
+  name: tpc-radar
+  namespace: tpc-radar
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    certmanager.k8s.io/cluster-issuer: letsencrypt-prd
+spec:
+  rules:
+    - host: tpc-radar.k8s-devops.cndp.cloud
+      http:
+        paths:
+          - backend:
+              serviceName: tpc-radar
+              servicePort: 80
+            path: /
+  tls:
+    - hosts:
+        - tpc-radar.k8s-devops.cndp.cloud
+      secretName: tpc-radar-tlscert

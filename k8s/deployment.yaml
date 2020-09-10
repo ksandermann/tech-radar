@@ -1,0 +1,62 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tpc-radar
+  labels:
+    app: tpc-radar
+    stage: dev
+  namespace: tpc-radar
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tpc-radar
+      stage: dev
+  template:
+    metadata:
+      labels:
+        app: tpc-radar
+        stage: dev
+    spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - tpc-radar
+                    - key: stage
+                      operator: In
+                      values:
+                        - dev
+                topologyKey: kubernetes.io/hostname
+              weight: 10
+      containers:
+        - name: tpc-radar
+          image: ksandermann/tpc-tech-radar:0.1
+          imagePullPolicy: Always
+          resources:
+            requests:
+              memory: 64Mi
+              cpu: 100m
+            limits:
+              memory: 256Mi
+              cpu: 250m
+          livenessProbe:
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            httpGet:
+              path: /
+              port: 3000
+          readinessProbe:
+            initialDelaySeconds: 60
+            periodSeconds: 5
+            httpGet:
+              path: /
+              port: 3000
+          ports:
+            - containerPort: 3000
